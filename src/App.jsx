@@ -450,7 +450,7 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const check = () => fetch("http://127.0.0.1:8000/news")
+    const check = () => fetch("https://signal-wolf.onrender.com/news")
       .then(r => r.json())
       .then(d => {
         const shield = { safe: d.safe, events: d.events || [], blocking: d.blocking_event }
@@ -463,12 +463,12 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/iq/status")
+    fetch("https://signal-wolf.onrender.com/iq/status")
       .then(r => r.json())
       .then(d => {
         setIqConnected(d.connected)
         if (d.connected) {
-          fetch("http://127.0.0.1:8000/iq/balance")
+          fetch("https://signal-wolf.onrender.com/iq/balance")
             .then(r => r.json()).then(d => setIqBalance(d.balance)).catch(() => {})
         }
       }).catch(() => {})
@@ -526,7 +526,7 @@ export default function App() {
             if (remaining <= 0) {
               clearInterval(entryIntervalRef.current)
               setEntryCountdown(0)
-              fetch("http://127.0.0.1:8000/alert", {
+              fetch("https://signal-wolf.onrender.com/alert", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -544,7 +544,7 @@ export default function App() {
         }
         
         try {
-          await fetch("http://127.0.0.1:8000/alert", {
+          await fetch("https://signal-wolf.onrender.com/alert", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -643,7 +643,7 @@ export default function App() {
     } catch {}
 
     try {
-      await fetch("http://127.0.0.1:8000/alert", {
+      await fetch("https://signal-wolf.onrender.com/alert", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -753,7 +753,7 @@ export default function App() {
               consecutiveLossesRef.current = 0
               setKillSwitch(false)
               try {
-                await fetch("http://127.0.0.1:8000/alert", {
+                await fetch("https://signal-wolf.onrender.com/alert", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ type: "SESSION_START", target: sessionTarget, amount: tradeAmount })
