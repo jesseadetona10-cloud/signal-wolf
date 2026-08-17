@@ -19,26 +19,36 @@ function avg(arr) { return arr.reduce((a, b) => a + b, 0) / arr.length }
 // DATA FETCHING
 // ──────────────────────────────────────────────────────────────────────────────
 async function fetchCandles(pair, limit = 100) {
-  const symbol = pair.replace("/", "") + "=X"
-  const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d`)
-  const data = await res.json()
-  const result = data.chart.result[0]
-  const quote = result.indicators.quote[0]
-  const timestamps = result.timestamp
-  const candles = []
-  for (let i = 0; i < timestamps.length; i++) {
-    if (quote.open[i] && quote.high[i] && quote.low[i] && quote.close[i]) {
-      candles.push({
-        time: timestamps[i],
-        open: quote.open[i], high: quote.high[i],
-        low: quote.low[i], close: quote.close[i]
-      })
+  try {
+    const symbol = pair.replace("/", "") + "=X"
+    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d`)
+    const data = await res.json()
+    const result = data.chart.result[0]
+    const quote = result.indicators.quote[0]
+    const timestamps = result.timestamp
+    const candles = []
+    for (let i = 0; i < timestamps.length; i++) {
+      if (quote.open[i] && quote.high[i] && quote.low[i] && quote.close[i]) {
+        candles.push({
+          time: timestamps[i],
+          open: quote.open[i], high: quote.high[i],
+          low: quote.low[i], close: quote.close[i]
+        })
+      }
     }
+    if (candles.length >= 30) return candles.slice(-limit)
+    throw new Error("Not enough data")
+  } catch {
+    const res = await fetch(`https://api.twelvedata.com/time_series?symbol=${pair}&interval=1min&outputsize=${limit}&apikey=${TWELVE_DATA_KEY}`)
+    const data = await res.json()
+    if (!data.values?.length) throw new Error("No price data")
+    return data.values.map(c => ({
+      time: new Date(c.datetime).getTime(),
+      open: parseFloat(c.open), high: parseFloat(c.high),
+      low: parseFloat(c.low), close: parseFloat(c.close)
+    })).reverse()
   }
-  if (candles.length >= 30) return candles.slice(-limit)
-  throw new Error("Not enough data")
 }
-
 // ──────────────────────────────────────────────────────────────────────────────
 // INDICATORS
 
