@@ -18,7 +18,6 @@ function avg(arr) { return arr.reduce((a, b) => a + b, 0) / arr.length }
 // ──────────────────────────────────────────────────────────────────────────────
 // DATA FETCHING
 // ──────────────────────────────────────────────────────────────────────────────
-
 async function fetchCandles(pair, limit = 100) {
   const symbol = pair.replace("/", "") + "=X"
   const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d`)
@@ -36,9 +35,13 @@ async function fetchCandles(pair, limit = 100) {
       })
     }
   }
-  
+  if (candles.length >= 30) return candles.slice(-limit)
+  throw new Error("Not enough data")
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // INDICATORS
+
 // ──────────────────────────────────────────────────────────────────────────────
 
 function calcATR(candles, period = 14) {
