@@ -36,23 +36,7 @@ async function fetchCandles(pair, limit = 100) {
       })
     }
   }
-  if (candles.length >= 30) return candles.slice(-limit)
-  throw new Error("Not enough data")
-}
-    if (candles.length >= 30) return candles.slice(-limit)
-    throw new Error("Not enough data")
-  } catch {
-    const res = await fetch(`https://api.twelvedata.com/time_series?symbol=${pair}&interval=1min&outputsize=${limit}&apikey=${TWELVE_DATA_KEY}`)
-    const data = await res.json()
-    if (!data.values?.length) throw new Error("No price data")
-    return data.values.map(c => ({
-      time: new Date(c.datetime).getTime(),
-      open: parseFloat(c.open), high: parseFloat(c.high),
-      low: parseFloat(c.low), close: parseFloat(c.close)
-    })).reverse()
-  }
-}
-
+  
 // ──────────────────────────────────────────────────────────────────────────────
 // INDICATORS
 // ──────────────────────────────────────────────────────────────────────────────
