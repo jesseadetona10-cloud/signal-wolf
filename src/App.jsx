@@ -7,10 +7,7 @@ const supabase = createClient(
 )
 
 const SCAN_PAIRS = [
-  "EUR/USD", "GBP/USD", "USD/JPY", "NZD/CAD", "AUD/USD",
-  "EUR/GBP", "USD/CHF", "GBP/JPY", "EUR/JPY", "AUD/JPY",
-  "EUR/CHF", "GBP/AUD", "USD/CAD", "EUR/CAD", "GBP/CHF",
-  "AUD/NZD", "EUR/AUD", "AUD/CAD"
+  "EUR/USD", "GBP/USD", "USD/JPY"
 ]
 
 const TWELVE_DATA_KEY = "4d2e88baa526473b904952db67c46d02"
@@ -23,23 +20,25 @@ function avg(arr) { return arr.reduce((a, b) => a + b, 0) / arr.length }
 // ──────────────────────────────────────────────────────────────────────────────
 
 async function fetchCandles(pair, limit = 100) {
-  try {
-    const symbol = pair.replace("/", "") + "=X"
-    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d`)
-    const data = await res.json()
-    const result = data.chart.result[0]
-    const quote = result.indicators.quote[0]
-    const timestamps = result.timestamp
-    const candles = []
-    for (let i = 0; i < timestamps.length; i++) {
-      if (quote.open[i] && quote.high[i] && quote.low[i] && quote.close[i]) {
-        candles.push({
-          time: timestamps[i],
-          open: quote.open[i], high: quote.high[i],
-          low: quote.low[i], close: quote.close[i]
-        })
-      }
+  const symbol = pair.replace("/", "") + "=X"
+  const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d`)
+  const data = await res.json()
+  const result = data.chart.result[0]
+  const quote = result.indicators.quote[0]
+  const timestamps = result.timestamp
+  const candles = []
+  for (let i = 0; i < timestamps.length; i++) {
+    if (quote.open[i] && quote.high[i] && quote.low[i] && quote.close[i]) {
+      candles.push({
+        time: timestamps[i],
+        open: quote.open[i], high: quote.high[i],
+        low: quote.low[i], close: quote.close[i]
+      })
     }
+  }
+  if (candles.length >= 30) return candles.slice(-limit)
+  throw new Error("Not enough data")
+}
     if (candles.length >= 30) return candles.slice(-limit)
     throw new Error("Not enough data")
   } catch {
